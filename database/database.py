@@ -15,43 +15,12 @@ def create_database(cursor):
     except psycopg2.Error as e:
         print(f"Database creation failed: {e}")
 
-def create_table(cursor):
+def create_table(cursor,sql):
     try:
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS users(
-                user_id UUID PRIMARY KEY,
-                first_name VARCHAR(255) NOT NULL,
-                last_name VARCHAR(255) NOT NULL,
-                email VARCHAR(255) NOT NULL,
-                photo_url VARCHAR(2048),
-                password VARCHAR(255) NOT NULL
-            )
-        """)
+        cursor.execute(sql)
         print("Table created successfully.")
     except psycopg2.Error as e:
         print(f"Table creation failed: {e}")
-    try:
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS accounts(
-                account_id UUID PRIMARY KEY,
-                email VARCHAR(255) NOT NULL,
-                photo_url VARCHAR(2048)
-            )
-        """)
-        print("Table created successfully.")
-    except psycopg2.Error as e:
-        print(f"Table creation failed: {e}")
-    try:
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS users_accounts(
-                account_id UUID references accounts(account_id),
-                user_id UUID references users(user_id)
-            )
-        """)
-        print("Table created successfully.")
-    except psycopg2.Error as e:
-        print(f"Table creation failed: {e}")
-
 def main():
     # Connect to the default database
     conn = psycopg2.connect(
@@ -83,7 +52,33 @@ def main():
     cursor = conn.cursor()
 
     # Create the table
-    create_table(cursor)
+    users_sql = """
+    CREATE TABLE IF NOT EXISTS users(
+        user_id uuid DEFAULT gen_random_uuid() NOT NULL UNIQUE, 
+        first_name VARCHAR(255) NOT NULL,
+        last_name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        photo_url VARCHAR(2048),
+        password VARCHAR(255) NOT NULL,
+        CONSTRAINT users_pkey PRIMARY KEY (user_id)
+    )"""
+
+    accounts_sql="""
+            CREATE TABLE IF NOT EXISTS accounts(
+                account_id UUID PRIMARY KEY,
+                email VARCHAR(255) NOT NULL,
+                photo_url VARCHAR(2048)
+            )
+        """
+    accounts_users_sql="""
+            CREATE TABLE IF NOT EXISTS accounts_users(
+                account_id UUID references accounts(account_id),
+                user_id UUID references users(user_id)
+            )
+        """
+    create_table(cursor,users_sql)
+    create_table(cursor,accounts_sql)
+    create_table(cursor,accounts_users_sql)
 
     # Clean up: Close cursor and connection
     cursor.close()
