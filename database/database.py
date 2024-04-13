@@ -85,15 +85,17 @@ def main(delete_db):
 
     accounts_sql="""
             CREATE TABLE IF NOT EXISTS accounts(
-                account_id UUID PRIMARY KEY,
+                account_id uuid DEFAULT gen_random_uuid() NOT NULL UNIQUE,
                 email VARCHAR(255) NOT NULL,
-                photo_url VARCHAR(2048)
+                photo_url VARCHAR(2048),
+                CONSTRAINT accounts_pkey PRIMARY KEY (account_id)
             )
         """
     accounts_users_sql="""
             CREATE TABLE IF NOT EXISTS accounts_users(
-                account_id UUID references accounts(account_id),
-                user_id UUID references users(user_id)
+                account_id UUID references accounts(account_id)  NOT NULL ,
+                user_id UUID references users(user_id)  NOT NULL,
+                CONSTRAINT account_users_pkey PRIMARY KEY (account_id,user_id)
             )
         """
     create_table(cursor,users_sql)
