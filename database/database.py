@@ -1,5 +1,6 @@
 import psycopg2
 import os
+import argparse  
 
 # Environment variables for connection details
 host_conn = os.environ['PGHOST']
@@ -8,6 +9,18 @@ user_var = os.environ['PGUSER']
 farmers_market_user_pass = os.environ['FARMERSMARKETPASS']
 farmers_market_user = os.environ['FARMERSMARKETUSER']
 passwd = os.environ['PGPASSWORD']
+def drop_database(cursor):
+    print("are you sure you want to drop the database? (y to proceede)")
+    response = input()
+    if response != 'y':
+        print("Exiting without dropping the database.")
+        return
+    try:
+        cursor.execute("DROP DATABASE IF EXISTS farmers_market")
+        print("Database dropped successfully.")
+    except psycopg2.Error as e:
+        print(f"Database drop failed: {e}")
+
 def create_database(cursor):
     try:
         cursor.execute("CREATE DATABASE farmers_market")
@@ -21,7 +34,7 @@ def create_table(cursor,sql):
         print("Table created successfully.")
     except psycopg2.Error as e:
         print(f"Table creation failed: {e}")
-def main():
+def main(delete_db):
     # Connect to the default database
     conn = psycopg2.connect(
         host=host_conn,
@@ -34,6 +47,8 @@ def main():
     cursor = conn.cursor()
 
     # Create the database
+    if delete_db:
+        drop_database(cursor)
     create_database(cursor)
 
     # Close the connection to the default database
@@ -85,4 +100,8 @@ def main():
     conn.close()
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Manage the farmers_market database.")
+    parser.add_argument("--delete", action="store_true", help="Drop the farmers_market database if it exists.")
+    args = parser.parse_args()
+
+    main(delete_db=args.delete)
