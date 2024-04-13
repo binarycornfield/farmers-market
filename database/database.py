@@ -8,8 +8,6 @@ user_var = os.environ['PGUSER']
 farmers_market_user_pass = os.environ['FARMERSMARKETPASS']
 farmers_market_user = os.environ['FARMERSMARKETUSER']
 passwd = os.environ['PGPASSWORD']
-user_id-''
-curser.execute("select * from pg_user where user_id=%s", (user_id,))
 def create_database(cursor):
     try:
         cursor.execute("CREATE DATABASE farmers_market")
@@ -46,9 +44,8 @@ def create_table(cursor):
     try:
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS users_accounts(
-                account_id UUID,
-                user_id UUID,
-                PRIMARY KEY(account_id, user_id)
+                account_id UUID references accounts(account_id),
+                user_id UUID references users(user_id)
             )
         """)
         print("Table created successfully.")
