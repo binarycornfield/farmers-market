@@ -8,7 +8,8 @@ user_var = os.environ['PGUSER']
 farmers_market_user_pass = os.environ['FARMERSMARKETPASS']
 farmers_market_user = os.environ['FARMERSMARKETUSER']
 passwd = os.environ['PGPASSWORD']
-
+user_id-''
+curser.execute("select * from pg_user where user_id=%s", (user_id,))
 def create_database(cursor):
     try:
         cursor.execute("CREATE DATABASE farmers_market")
