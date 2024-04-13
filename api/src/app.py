@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import psycopg2
 import json
 from dataclasses import dataclass
@@ -34,22 +34,21 @@ def get_user(id):
     users = run_query(sql, fn)
     return users  
 
-@app.route("/users", methods=['POST'])
+@app.route('/users', methods=['POST'])
 def create_user():
-    content_type = request.headers.get('Content-Type')
-    if (content_type == 'application/json'):
-        json = request.json
-        first_name = json.get("first_name")
-        last_name = json.get("last_name")
-        email = json.get("email")
-        password = json.get("password")
-        sql = f"""
-            INSERT INTO users(first_name, last_name, email, password) 
-            VALUES ('{first_name}', '{last_name}', '{email}', '{password}');
-        """
-        with conn.cursor() as cur:
-            result = cur.execute(sql)
-        return result
+    data = request.get_json()
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    email = data.get('email')
+    password = data.get('password')
+    sql = """
+        INSERT INTO users(first_name, last_name, email, password) 
+        VALUES (%s, %s, %s, %s);"""
+    user_data = (first_name, last_name, email, password)
+
+    with conn.cursor() as cur:
+        cur.execute(sql, user_data)
+    return jsonify({'message': 'User created successfully', 'user': email}), 201
 
 @app.route("/users")
 def update_user(id):
