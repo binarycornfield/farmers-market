@@ -10,12 +10,17 @@ farmers_market_user_pass = os.environ['FARMERSMARKETPASS']
 farmers_market_user = os.environ['FARMERSMARKETUSER']
 passwd = os.environ['PGPASSWORD']
 def drop_database(cursor):
-    print("are you sure you want to drop the database? (y to proceede)")
-    response = input()
-    if response != 'y':
-        print("Exiting without dropping the database.")
-        return
     try:
+        # Terminate all existing connections to the target database
+        cursor.execute("""
+            SELECT pg_terminate_backend(pg_stat_activity.pid)
+            FROM pg_stat_activity
+            WHERE pg_stat_activity.datname = 'farmers_market'
+              AND pid <> pg_backend_pid();
+        """)
+        print("All connections to the database have been terminated.")
+
+        # Drop the database
         cursor.execute("DROP DATABASE IF EXISTS farmers_market")
         print("Database dropped successfully.")
     except psycopg2.Error as e:
