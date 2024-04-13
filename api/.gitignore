@@ -161,3 +161,6 @@ cython_debug/
 
 # Mac os crap
 **/.DS_Store
+
+
+db/
