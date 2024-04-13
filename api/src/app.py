@@ -50,9 +50,24 @@ def create_user():
         cur.execute(sql, user_data)
     return jsonify({'message': 'User created successfully', 'user': email}), 201
 
-@app.route("/users")
+@app.route("/users/<id>", methods=['PUT'])
 def update_user(id):
-    pass
+    data = request.get_json()
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    email = data.get('email')
+    password = data.get('password')
+    sql = """
+        UPDATE users(first_name, last_name, email, password) 
+        SET first_name=%s, last_name=%s, email=%s, password=%s
+        WHERE user_id=%s;
+    """
+    user_data = (first_name, last_name, email, password, id)
+
+    with conn.cursor() as cur:
+        cur.execute(sql, user_data)
+    return jsonify({'message': 'Updated user successfully', 'user': email}), 201
+
 
 @app.route("/users")
 def delete_user(id):
