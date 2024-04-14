@@ -4,6 +4,7 @@ import json
 from dataclasses import dataclass
 from uuid import UUID
 
+
 app = Flask(__name__)
 
 conn = psycopg2.connect()
