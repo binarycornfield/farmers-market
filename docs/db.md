@@ -26,6 +26,7 @@ classDiagram
     class users_accounts
     users_accounts : +uuid account_id
     users_accounts : +uuid user_id
+    users_accounts : varchar(255) role
     class products
     products : +uuid product_id
     products : +uuid account_id
